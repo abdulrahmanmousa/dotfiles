@@ -6,6 +6,8 @@ export ZSH="$HOME/.oh-my-zsh"
 export PATH="$PATH:/usr/local/go/bin"
 
 
+
+
 # Download Znap, if it's not there yet.
 [[ -r ~/Repos/znap/znap.zsh ]] ||
     git clone --depth 1 -- \
