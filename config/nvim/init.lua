@@ -212,15 +212,15 @@ vim.opt.rtp:prepend(lazypath)
 
 -- remove unneccessary imports on save
 
-vim.api.nvim_create_autocmd('BufWritePre', {
-  desc = 'Remove unneccessary imports on save',
-  pattern = '*.ts,*.tsx,*.js,*.jsx',
-  callback = function()
-    local api = require 'typescript-tools.api'
-    api.remove_unused_imports()
-    api.add_missing_imports()
-  end,
-})
+-- vim.api.nvim_create_autocmd('BufWritePre', {
+--   desc = 'Remove unneccessary imports on save',
+--   pattern = '*.ts,*.tsx,*.js,*.jsx',
+--   callback = function()
+--     local api = require 'typescript-tools.api'
+--     api.remove_unused_imports()
+--     api.add_missing_imports()
+--   end,
+-- })
 
 -- [[ Configure and install plugins ]]
 --
