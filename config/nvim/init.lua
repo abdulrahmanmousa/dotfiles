@@ -167,6 +167,8 @@ vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
 vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
 vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
 vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', 'yif', 'ggyG', { desc = 'Yank [I]n [F]ile' })
+vim.keymap.set('n', 'vif', 'ggVG', { desc = 'Select [I]n [F]ile' })
 
 -- Keybinds to select import from telescope
 
@@ -211,14 +213,22 @@ end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
 -- remove unneccessary imports on save
-
 vim.api.nvim_create_autocmd('BufWritePre', {
-  desc = 'Remove unneccessary imports on save',
+  desc = 'Manage imports and format on save',
   pattern = '*.ts,*.tsx,*.js,*.jsx',
   callback = function()
     local api = require 'typescript-tools.api'
     api.remove_unused_imports()
     api.add_missing_imports()
+    -- Format the buffer
+    local conform = require 'conform'
+
+    conform.format()
+
+    -- Explicitly save the buffer
+    vim.api.nvim_buf_call(0, function()
+      vim.cmd 'write'
+    end)
   end,
 })
 
@@ -733,7 +743,7 @@ require('lazy').setup({
   },
   { -- Autoformat
     'stevearc/conform.nvim',
-    event = { 'BufReadPre', 'BufNewFile' },
+    -- event = { 'BufReadPre', 'BufNewFile' },
     config = function()
       local conform = require 'conform'
 
@@ -752,9 +762,6 @@ require('lazy').setup({
           graphql = { 'prettier' },
           lua = { 'stylua' },
           python = { 'isort', 'black' },
-        },
-        format_on_save = {
-          lsp_fallback = true,
         },
       }
 
