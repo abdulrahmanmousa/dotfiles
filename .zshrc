@@ -166,6 +166,10 @@ bindkey "^M" execute_last_command_if_empty
   alias ssl="ssh abdulrahman@192.168.1.2"
   alias ssr="ssh abdulrahman@abdulrahmanmousa.ddns.net"
 
+  # nestjs aliases
+    alias nsg="nest g"
+    alias nsd="npm run start:dev"
+    alias nss="npm run start:prod"
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
