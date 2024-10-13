@@ -126,6 +126,21 @@ vim.api.nvim_create_user_command('CopilotToggle', function()
 end, { nargs = 0 })
 vim.keymap.set('', '<leader>cp', ':CopilotToggle<CR>', { noremap = true, silent = true })
 
+-- Diagnostics function to include error and warning counts in statusline
+function Lsp_diagnostics_indicator()
+  local error_count = vim.lsp.diagnostic.get_count(0, 'Error')
+  local warning_count = vim.lsp.diagnostic.get_count(0, 'Warning')
+
+  -- Error and warning signs
+  local error_sign = error_count > 0 and (' E:' .. error_count) or ''
+  local warning_sign = warning_count > 0 and (' W:' .. warning_count) or ''
+
+  return error_sign .. warning_sign
+end
+
+-- Set the statusline to include file info, modified flag, and diagnostics
+vim.o.statusline = '%f %m %r %h %= %{v:lua.Lsp_diagnostics_indicator()} %=%l:%c'
+
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 --
@@ -899,6 +914,54 @@ require('lazy').setup({
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
+
+      -- Define custom highlight group for the error count (in red)
+      vim.api.nvim_set_hl(0, 'StatuslineError', { fg = '#FF0000' }) -- Red color
+
+      -- Function to get diagnostics count with error count in red
+      local function lsp_diagnostics_indicator()
+        local error_count = vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
+        local warning_count = vim.diagnostic.get(0, { severity = vim.diagnostic.severity.WARN })
+
+        -- Make the error count red if there are errors
+        local error_sign = #error_count > 0 and ('%#StatuslineError#E:' .. #error_count) or ''
+        local warning_sign = #warning_count > 0 and (' W:' .. #warning_count) or ''
+
+        return error_sign .. warning_sign
+      end
+
+      -- Setup mini.statusline to only show filename, lines info, and diagnostics
+      require('mini.statusline').setup {
+        content = {
+          active = function()
+            local filename = require('mini.statusline').section_filename { trunc_width = 140 }
+            local diagnostics = lsp_diagnostics_indicator()
+            local location = require('mini.statusline').section_location { trunc_width = 75 }
+
+            return require('mini.statusline').combine_groups {
+              { hl = 'MiniStatuslineFilename', strings = { filename } },
+              { hl = 'MiniStatuslineDiagnostics', strings = { diagnostics } },
+              { hl = 'MiniStatuslineLocation', strings = { location } },
+            }
+          end,
+        },
+      }
+      -- -- Setup mini.statusline with LSP diagnostics integration
+      -- require('mini.statusline').setup({
+      --   content = {
+      --     -- Function to get the LSP diagnostics count for statusline
+      --     function()
+      --       local error_count = vim.lsp.diagnostic.get_count(0, "Error")
+      --       local warning_count = vim.lsp.diagnostic.get_count(0, "Warning")
+      --
+      --       local error_sign = error_count > 0 and (" E:" .. error_count) or ""
+      --       local warning_sign = warning_count > 0 and (" W:" .. warning_count) or ""
+      --
+      --       -- Display the diagnostics count if errors or warnings exist
+      --       return error_sign .. warning_sign
+      --     end,
+      --   }
+      -- })
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
