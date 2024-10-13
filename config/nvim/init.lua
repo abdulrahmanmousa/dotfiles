@@ -182,6 +182,8 @@ vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
 vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
 vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
 vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', 'yif', 'ggyG', { desc = 'Yank [I]n [F]ile' })
+vim.keymap.set('n', 'vif', 'ggVG', { desc = 'Select [I]n [F]ile' })
 
 -- Keybinds to select import from telescope
 
@@ -227,15 +229,24 @@ vim.opt.rtp:prepend(lazypath)
 
 -- remove unneccessary imports on save
 
--- vim.api.nvim_create_autocmd('BufWritePre', {
---   desc = 'Remove unneccessary imports on save',
---   pattern = '*.ts,*.tsx,*.js,*.jsx',
---   callback = function()
---     local api = require 'typescript-tools.api'
---     api.remove_unused_imports()
---     api.add_missing_imports()
---   end,
--- })
+vim.api.nvim_create_autocmd('BufWritePre', {
+  desc = 'Manage imports and format on save',
+  pattern = '*.ts,*.tsx,*.js,*.jsx',
+  callback = function()
+    local api = require 'typescript-tools.api'
+    api.remove_unused_imports()
+    api.add_missing_imports()
+    -- Format the buffer
+    local conform = require 'conform'
+
+    conform.format()
+
+    -- Explicitly save the buffer
+    vim.api.nvim_buf_call(0, function()
+      vim.cmd 'write'
+    end)
+  end,
+})
 
 -- [[ Configure and install plugins ]]
 --
@@ -268,6 +279,17 @@ require('lazy').setup({
     config = function()
       require('tailwindcss-colors').setup()
     end,
+  },
+  {
+    'luckasRanarison/tailwind-tools.nvim',
+    name = 'tailwind-tools',
+    build = ':UpdateRemotePlugins',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-telescope/telescope.nvim', -- optional
+      'neovim/nvim-lspconfig', -- optional
+    },
+    opts = {}, -- your configuration
   },
   { 'folke/ts-comments.nvim', opts = {}, event = 'VeryLazy', enabled = vim.fn.has 'nvim-0.10.0' == 1 },
   {
@@ -748,7 +770,7 @@ require('lazy').setup({
   },
   { -- Autoformat
     'stevearc/conform.nvim',
-    event = { 'BufReadPre', 'BufNewFile' },
+    -- event = { 'BufReadPre', 'BufNewFile' },
     config = function()
       local conform = require 'conform'
 
@@ -767,9 +789,6 @@ require('lazy').setup({
           graphql = { 'prettier' },
           lua = { 'stylua' },
           python = { 'isort', 'black' },
-        },
-        format_on_save = {
-          lsp_fallback = true,
         },
       }
 
