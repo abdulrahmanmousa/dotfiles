@@ -233,19 +233,19 @@ vim.api.nvim_create_autocmd('BufWritePre', {
   desc = 'Manage imports and format on save',
   pattern = '*.ts,*.tsx,*.js,*.jsx',
   callback = function()
-    local api = require 'typescript-tools.api'
-    api.remove_unused_imports()
-    api.add_missing_imports()
+    -- local api = require 'typescript-tools.api'
+    -- api.remove_unused_imports()
+    -- api.add_missing_imports()
     -- Format the buffer
     local conform = require 'conform'
 
     conform.format()
-
-    -- Explicitly save the buffer
+   -- Explicitly save the buffer
     vim.api.nvim_buf_call(0, function()
       vim.cmd 'write'
     end)
-  end,
+    end
+
 })
 
 -- [[ Configure and install plugins ]]
@@ -271,7 +271,7 @@ require('lazy').setup({
   --    require('Comment').setup({})
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  -- { 'numToStr/Comment.nvim', opts = {} },
 
   { 'stevanmilic/nvim-lspimport' },
   {
@@ -291,7 +291,7 @@ require('lazy').setup({
     },
     opts = {}, -- your configuration
   },
-  { 'folke/ts-comments.nvim', opts = {}, event = 'VeryLazy', enabled = vim.fn.has 'nvim-0.10.0' == 1 },
+  { 'folke/ts-comments.nvim', opts = {}, event = 'VeryLazy', },
   {
     'dawsers/telescope-file-history.nvim',
     config = function()
@@ -802,6 +802,12 @@ require('lazy').setup({
     end,
   },
 
+{ "rafamadriz/friendly-snippets" },
+
+{
+  "L3MON4D3/LuaSnip",
+  dependencies = { "rafamadriz/friendly-snippets" },
+},
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
     event = 'InsertEnter',
@@ -809,7 +815,11 @@ require('lazy').setup({
       -- Snippet Engine & its associated nvim-cmp source
       {
         'L3MON4D3/LuaSnip',
+        config = function()
+          require('luasnip.loaders.from_vscode').lazy_load()
+        end,
         build = (function()
+
           -- Build Step is needed for regex support in snippets
           -- This step is not supported in many windows environments
           -- Remove the below condition to re-enable on windows
