@@ -83,9 +83,10 @@ ZSH_THEME="awesomepanda"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(git zsh-github-copilot zsh-autosuggestions zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=white,underline,bold,standout"
 
 # User configuration
 
@@ -122,6 +123,7 @@ zle -N execute_last_command_if_empty
 
 # Bind the function to the Enter key
 bindkey "^M" execute_last_command_if_empty
+bindkey '^[^M' zsh_gh_copilot_suggest
 
  jb() {
     local num=$1
